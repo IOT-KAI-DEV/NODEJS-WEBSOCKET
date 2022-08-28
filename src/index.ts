@@ -1,15 +1,13 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { Server } from "socket.io";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from './type';
 import mqtt from 'mqtt';
-import { Queue } from './queue';
+
 dotenv.config();
 
 const mqttHost = process.env.MQTT_HOST
 const mqttPort = process.env.MQTT_PORT
 const clientId = process.env.MQTT_CLIENTID
-// const clientId = `mqttjs_${Math.random().toString(16).slice(3)}`
 
 const connectUrl = `mqtt://${mqttHost}:${mqttPort}`
 
@@ -53,12 +51,12 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 const server = app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
+  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173"
+    origin: `http://${process.env.WEBSOCKET_CLIENT_HOST}:${process.env.WEBSOCKET_CLIENT_PORT}`
   }
 });
 
@@ -67,6 +65,5 @@ io.on("connection", (socket) => {
 });
 
 client.on('message', (topic, payload) => {
-    // console.log(`Got a new message from topi : ${topic}, ${mqttHost}:${mqttPort}`)
     io.emit("forward-ws-message", payload.toString(), topic)
 })
