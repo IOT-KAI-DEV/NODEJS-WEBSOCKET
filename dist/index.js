@@ -8,20 +8,21 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const socket_io_1 = require("socket.io");
 const mqtt_1 = __importDefault(require("mqtt"));
 dotenv_1.default.config();
-const mqttHost = '103.172.204.136';
-const mqttPort = '1883';
-const clientId = `mqttjs_${Math.random().toString(16).slice(3)}`;
+const mqttHost = process.env.MQTT_HOST;
+const mqttPort = process.env.MQTT_PORT;
+const clientId = process.env.MQTT_CLIENTID;
+// const clientId = `mqttjs_${Math.random().toString(16).slice(3)}`
 const connectUrl = `mqtt://${mqttHost}:${mqttPort}`;
 const client = mqtt_1.default.connect(connectUrl, {
     clientId,
     clean: true,
     connectTimeout: 30000,
-    username: 'erka-solusi',
-    password: 'erka-solusi',
+    username: process.env.MQTT_USERNAME,
+    password: process.env.MQTT_USERNAME,
     reconnectPeriod: 1000,
     keepalive: 10
 });
-const topic = 'test/hakim';
+const topic = 'test';
 client.on('connect', () => {
     console.log('Connected');
     client.subscribe([topic], () => {
