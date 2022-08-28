@@ -54,7 +54,7 @@ io.on("connection", (socket) => {
     console.log('a client connected, client id : ', socket.id);
 });
 client.on('message', (topic, payload) => {
-    console.log(`Got a new message from topi : ${topic}, ${mqttHost}:${mqttPort}`);
+    // console.log(`Got a new message from topi : ${topic}, ${mqttHost}:${mqttPort}`)
     io.emit("forward-ws-message", payload.toString(), topic);
 });
 //# sourceMappingURL=index.js.map
