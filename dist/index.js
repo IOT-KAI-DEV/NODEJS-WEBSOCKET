@@ -17,11 +17,11 @@ const client = mqtt_1.default.connect(connectUrl, {
     clean: true,
     connectTimeout: 30000,
     username: process.env.MQTT_USERNAME,
-    password: process.env.MQTT_USERNAME,
+    password: process.env.MQTT_PASSWORD,
     reconnectPeriod: 1000,
     keepalive: 10
 });
-const topic = 'test';
+const topic = 'digitalisasi/fromclient';
 client.on('connect', () => {
     console.log('Connected');
     client.subscribe([topic], () => {
@@ -53,6 +53,7 @@ io.on("connection", (socket) => {
     console.log('a client connected, client id : ', socket.id);
 });
 client.on('message', (topic, payload) => {
+    console.log(`got message from topic : ${topic}`);
     io.emit("forward-ws-message", payload.toString(), topic);
 });
 //# sourceMappingURL=index.js.map
