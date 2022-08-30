@@ -23,7 +23,7 @@ const client = mqtt.connect(connectUrl, {
   keepalive: 10
 })
 
-const topic = 'digitalisasi/fromclient';
+const topic = process.env.MQTT_CLIENT;
 
 client.on('connect', () => {
   console.log('Connected')
@@ -65,6 +65,6 @@ io.on("connection", (socket) => {
 });
 
 client.on('message', (topic, payload) => {
-    console.log(`got message from topic : ${topic}`)
+    console.log(`got message from topic : ${topic}`c)
     io.emit("forward-ws-message", payload.toString(), topic)
 })
