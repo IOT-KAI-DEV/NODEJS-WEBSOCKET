@@ -21,7 +21,7 @@ const client = mqtt_1.default.connect(connectUrl, {
     reconnectPeriod: 1000,
     keepalive: 10
 });
-const topic = 'digitalisasi/fromclient';
+const topic = process.env.MQTT_TOPIC;
 client.on('connect', () => {
     console.log('Connected');
     client.subscribe([topic], () => {
@@ -54,6 +54,18 @@ io.on("connection", (socket) => {
 });
 client.on('message', (topic, payload) => {
     console.log(`got message from topic : ${topic}`);
-    io.emit("forward-ws-message", payload.toString(), topic);
+    // io.emit("forward-ws-message", payload.toString(), topic)
+    const payloadObject = JSON.parse(payload.toString());
+    let lastSec = 0;
+    let timeStart = new Date();
+    let timeRun = new Date(payloadObject.gpsdatetime);
+    // @ts-ignore
+    let diff = Math.abs(timeStart - timeRun);
+    let sec = Math.floor(diff / 1000);
+    // console.log(sec, lastSec);
+    if (sec > lastSec) {
+        lastSec = sec;
+        io.emit("forward-ws-message", payload.toString(), topic);
+    }
 });
 //# sourceMappingURL=index.js.map
