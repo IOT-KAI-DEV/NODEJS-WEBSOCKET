@@ -64,13 +64,14 @@ io.on("connection", (socket) => {
   console.log('a client connected, client id : ', socket.id);
 });
 
+let timeStart = new Date();
+let lastSec = 0;
+
 client.on('message', (topic, payload) => {
     console.log(`got message from topic : ${topic}`)
     // io.emit("forward-ws-message", payload.toString(), topic)
 
     const payloadObject = JSON.parse(payload.toString());
-    let lastSec = 0;
-    let timeStart = new Date();
     let timeRun = new Date(payloadObject.gpsdatetime);
     // @ts-ignore
     let diff = Math.abs(timeStart - timeRun);
@@ -78,7 +79,7 @@ client.on('message', (topic, payload) => {
 
     // console.log(sec, lastSec);
     if(sec > lastSec){
+      lastSec = sec;
       io.emit("forward-ws-message", payload.toString(), topic)
-      // console.log('after socket push')
     }
 })
