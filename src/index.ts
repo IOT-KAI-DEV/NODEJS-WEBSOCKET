@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { Server } from "socket.io";
 import mqtt from 'mqtt';
+import { argv } from 'process';
 
 dotenv.config();
 
@@ -61,7 +62,10 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log('a client connected, client id : ', socket.id);
+  console.log('A client connected, socket id : ' + socket.id)
+  socket.on("locoid-changed", (...args) => {
+    console.log(...args)
+  })
 });
 
 let timeStart = new Date();

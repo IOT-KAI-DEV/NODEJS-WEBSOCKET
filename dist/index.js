@@ -50,7 +50,10 @@ const io = new socket_io_1.Server(server, {
     }
 });
 io.on("connection", (socket) => {
-    console.log('a client connected, client id : ', socket.id);
+    console.log('A client connected, socket id : ' + socket.id);
+    socket.on("locoid-changed", (...args) => {
+        console.log(...args);
+    });
 });
 let timeStart = new Date();
 let lastSec = 0;
