@@ -1,6 +1,6 @@
 FROM node
 COPY . ./app
-WORKDIR ./app
+WORKDIR /app
 RUN npm install --save-dev
 RUN npm run build
 EXPOSE 3000
