@@ -63,6 +63,8 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log('A client connected, socket id : ' + socket.id)
+  
+  // mas rian kaya gini cara ngelisten di nodejs dari event emit yang saya kirim di client nya 
   socket.on("locoid-changed", (...args) => {
     console.log(...args)
   })
