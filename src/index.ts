@@ -83,7 +83,7 @@ client.on('message', (topic, payload) => {
     let diff = Math.abs(timeStart - timeRun);
     let sec = Math.floor(diff/1000);
 
-    // console.log(sec, lastSec);
+    console.log(sec, lastSec);
     if(sec > lastSec){
       lastSec = sec;
       io.emit("forward-ws-message", payload.toString(), topic)
