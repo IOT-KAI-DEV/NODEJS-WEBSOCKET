@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.send = void 0;
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const socket_io_1 = require("socket.io");
@@ -46,30 +47,66 @@ const server = app.listen(port, () => {
 });
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: process.env.APP_MODE === 'production' ? `http://kai.erkasolusi.com` : `http://${process.env.WEBSOCKET_CLIENT_HOST}:${process.env.WEBSOCKET_CLIENT_PORT}`
+        origin: process.env.APP_MODE === 'production' ? `http://${process.env.WEBSOCKET_CLIENT_PRODUCTION_HOST}:${process.env.WEBSOCKET_CLIENT_PRODUCTION_PORT}` : `http://${process.env.WEBSOCKET_CLIENT_HOST}:${process.env.WEBSOCKET_CLIENT_PORT}`
     }
 });
-io.on("connection", (socket) => {
-    console.log('A client connected, socket id : ' + socket.id);
-    // mas rian kaya gini cara ngelisten di nodejs dari event emit yang saya kirim di client nya 
-    socket.on("locoid-changed", (...args) => {
-        console.log(...args);
-    });
-});
+// please note that we defined outer to perform hositing
+let defaulLocomotiveID = "default";
 let timeStart = new Date();
 let lastSec = 0;
-client.on('message', (topic, payload) => {
-    console.log(`got message from topic : ${topic}`);
-    // io.emit("forward-ws-message", payload.toString(), topic)
+// first ly we need to listen to socket connection, everything start from socket, the broker is behind as a callback
+io.on("connection", (socket) => {
+    console.log('A client connected, socket id : ' + socket.id);
+    // thee process inside her is simultaneous, but are blocking mechanisme can be performed heere, since we defineed a outeer state constraint
+    // after socket get conected please listen to socket event first
+    socket.on("locoid-changed", (...args) => {
+        console.log("Select performed: need to changedd", ...args);
+        const emitedClientEvent = (JSON.parse(args[0])).name;
+        defaulLocomotiveID = emitedClientEvent;
+    });
+    // the action is perfomed async, so we can also listen broker suimulatnesously, 
+    client.on("message", (topic, payload) => {
+        console.log("listen all message coming from broker");
+        (0, exports.send)("forward-ws-message", payload);
+        // const messageObject = JSON.parse(payload.toString());
+        // // chek if the broker payload is a single object -> is meaning the broker just send a single message 
+        // if(typeof messageObject === 'object' && messageObject.locoid === defaulLocomotiveID){
+        //   console.log('forward single message to vue that matched the rule')
+        // io.emit("forward-ws-message", payload.toString(), topic)
+        // }
+        // console.log(typeof messageObject)
+    });
+    // // mas rian kaya gini cara ngelisten di nodejs dari event emit yang saya kirim di client nya 
+    // socket.on("locoid-changed", (...args) => {
+    //   console.log(JSON.parse(args[0]))
+    // })
+});
+const send = (event, payload) => {
     const payloadObject = JSON.parse(payload.toString());
     let timeRun = new Date(payloadObject.gpsdatetime);
     // @ts-ignore
     let diff = Math.abs(timeStart - timeRun);
     let sec = Math.floor(diff / 1000);
-    console.log(sec, lastSec);
+    // console.log(sec, lastSec);
     if (sec > lastSec) {
         lastSec = sec;
         io.emit("forward-ws-message", payload.toString(), topic);
+        console.log("send");
     }
-});
+};
+exports.send = send;
+// client.on('message', (topic, payload) => {
+//     console.log(`got message from topic : ${topic}`)
+//     // io.emit("forward-ws-message", payload.toString(), topic)
+//     const payloadObject = JSON.parse(payload.toString());
+//     let timeRun = new Date(payloadObject.gpsdatetime);
+//     // @ts-ignore
+//     let diff = Math.abs(timeStart - timeRun);
+//     let sec = Math.floor(diff/1000);
+//     console.log(sec, lastSec);
+//     if(sec > lastSec){
+//       lastSec = sec;
+//       io.emit("forward-ws-message", payload.toString(), topic)
+//     }
+// })
 //# sourceMappingURL=index.js.map
